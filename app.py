@@ -1,5 +1,5 @@
 import numpy as np
-import pickle
+import joblib
 import pandas as pd
 import streamlit as st 
 
@@ -8,7 +8,7 @@ import streamlit as st
 
 
 pickle_in = open("classifier.pkl","rb")
-classifier=pickle.load(pickle_in)
+classifier=joblib.load(pickle_in)
 
 #@app.route('/')
 def welcome():
