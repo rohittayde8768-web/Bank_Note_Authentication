@@ -1,76 +1,129 @@
+```python
 import numpy as np
 import joblib
 import pandas as pd
-import streamlit as st 
+import streamlit as st
 
 
+# Load trained ML model
+try:
+    classifier = joblib.load("classifier.pkl")
+except Exception as e:
+    st.error("Unable to load classifier.pkl")
+    st.error(f"Error: {e}")
+    st.stop()
 
 
+# Prediction function
+def predict_note_authentication(variance, skewness, curtosis, entropy):
+    prediction = classifier.predict(
+        [[
+            float(variance),
+            float(skewness),
+            float(curtosis),
+            float(entropy)
+        ]]
+    )
 
-pickle_in = open("classifier.pkl","rb")
-classifier=joblib.load(pickle_in)
-
-#@app.route('/')
-def welcome():
-    return "Welcome All"
-
-#@app.route('/predict',methods=["Get"])
-def predict_note_authentication(variance,skewness,curtosis,entropy):
-    
-    """Let's Authenticate the Banks Note 
-    This is using docstrings for specifications.
-    ---
-    parameters:  
-      - name: variance
-        in: query
-        type: number
-        required: true
-      - name: skewness
-        in: query
-        type: number
-        required: true
-      - name: curtosis
-        in: query
-        type: number
-        required: true
-      - name: entropy
-        in: query
-        type: number
-        required: true
-    responses:
-        200:
-            description: The output values
-        
-    """
-   
-    prediction=classifier.predict([[variance,skewness,curtosis,entropy]])
-    print(prediction)
-    return prediction
+    return prediction[0]
 
 
-
+# Main Streamlit application
 def main():
-    st.title("Bank Authenticator")
-    html_temp = """
-    <div style="background-color:tomato;padding:10px">
-    <h2 style="color:white;text-align:center;">Streamlit Bank Authenticator ML App </h2>
-    </div>
-    """
-    st.markdown(html_temp,unsafe_allow_html=True)
-    variance = st.text_input("Variance","Type Here")
-    skewness = st.text_input("skewness","Type Here")
-    curtosis = st.text_input("curtosis","Type Here")
-    entropy = st.text_input("entropy","Type Here")
-    result=""
-    if st.button("Predict"):
-        result=predict_note_authentication(variance,skewness,curtosis,entropy)
-    st.success('The output is {}'.format(result))
-    if st.button("About"):
-        st.text("Lets LEarn")
-        st.text("Built with Streamlit")
 
-if __name__=='__main__':
+    st.set_page_config(
+        page_title="Bank Authenticator",
+        page_icon="🏦",
+        layout="centered"
+    )
+
+    st.title("🏦 Bank Note Authentication")
+
+    st.markdown(
+        """
+        <div style="
+            background-color:tomato;
+            padding:10px;
+            border-radius:10px;
+        ">
+            <h2 style="color:white;text-align:center;">
+                Streamlit Bank Authenticator ML App
+            </h2>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    st.write("")
+    st.write("Enter the features of the bank note:")
+
+    # Input fields
+    variance = st.number_input(
+        "Variance",
+        value=0.0,
+        format="%.6f"
+    )
+
+    skewness = st.number_input(
+        "Skewness",
+        value=0.0,
+        format="%.6f"
+    )
+
+    curtosis = st.number_input(
+        "Curtosis",
+        value=0.0,
+        format="%.6f"
+    )
+
+    entropy = st.number_input(
+        "Entropy",
+        value=0.0,
+        format="%.6f"
+    )
+
+    # Prediction button
+    if st.button("🔍 Predict", use_container_width=True):
+
+        try:
+            result = predict_note_authentication(
+                variance,
+                skewness,
+                curtosis,
+                entropy
+            )
+
+            st.success(f"Prediction: {result}")
+
+            if result == 0:
+                st.info("The bank note is predicted to be **Genuine**.")
+            elif result == 1:
+                st.warning("The bank note is predicted to be **Forged**.")
+
+        except Exception as e:
+            st.error("Prediction failed.")
+            st.error(f"Error: {e}")
+
+    # About section
+    if st.button("ℹ️ About", use_container_width=True):
+
+        st.write("### About this project")
+        st.write(
+            "This application uses Machine Learning to authenticate "
+            "bank notes based on four features:"
+        )
+
+        st.write("- Variance")
+        st.write("- Skewness")
+        st.write("- Curtosis")
+        st.write("- Entropy")
+
+        st.write("Built with Python, Scikit-learn and Streamlit.")
+
+
+if __name__ == "__main__":
     main()
-    
+```
+
     
     
